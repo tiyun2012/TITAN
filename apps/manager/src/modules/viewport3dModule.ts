@@ -218,7 +218,6 @@ void main() {
       Mat4Utils.lookAt(eye, { x: 0, y: 0, z: 0 }, { x: 0, y: 1, z: 0 }, view);
       Mat4Utils.perspective((60 * Math.PI) / 180, w / h, 0.1, 2000, proj);
       
-      // FIX: Multiply Proj * View. Previous code did View * Proj.
       Mat4Utils.multiply(proj, view, viewProj);
 
       gl.enable(gl.DEPTH_TEST);
@@ -253,7 +252,6 @@ void main() {
         Mat4Utils.fromTranslation(pos as any, modelT);
         Mat4Utils.fromScaling(sc as any, modelS);
         
-        // FIX: model = T * S. Previous code did S * T which scaled translation.
         Mat4Utils.multiply(modelT, modelS, modelT);
 
         gl.uniformMatrix4fv(v.u_model, false, modelT);
