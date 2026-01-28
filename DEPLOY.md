@@ -22,3 +22,10 @@ npm install
 npm run dev -- --host 0.0.0.0 --port 3000
 ```
 Then open the Web Preview / Ports UI for that port.
+
+## If you still see "@/..." module specifier errors
+You are likely using a *static file preview*.
+Use the **Web Preview** (Vite dev server) in Google Studio Cloud / Firebase Studio.
+
+This repo also includes an **importmap fallback** in `index.html` and `apps/manager/index.html`
+to reduce alias errors in some static-preview cases, but the correct way is still to run Vite.

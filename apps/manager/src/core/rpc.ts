@@ -28,7 +28,9 @@ export type LogEvent = {
 export type ModuleRegisteredEvent = { type: "module/registered"; id: ModuleId };
 export type ModuleUnregisteredEvent = { type: "module/unregistered"; id: ModuleId };
 
-export type CoreEvent = RpcCall | RpcResponse | LogEvent | ModuleRegisteredEvent | ModuleUnregisteredEvent;
+export type EngineEntitiesChangedEvent = { type: "engine/entitiesChanged" };
+
+export type CoreEvent = RpcCall | RpcResponse | LogEvent | ModuleRegisteredEvent | ModuleUnregisteredEvent | EngineEntitiesChangedEvent;
 
 export interface Api {
   call<T = unknown>(target: ModuleId, op: string, payload?: unknown): Promise<T>;
