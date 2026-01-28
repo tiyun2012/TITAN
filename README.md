@@ -42,3 +42,8 @@ Root `index.html` is now the app shell (Main Window + Scene Viewport). Use Web P
 
 ## WebGL viewport note
 Fixed `Mat4Utils.lookAt` to be column-major (WebGL/OpenGL). Without this, the WebGL viewport may render a blank screen.
+
+
+## Viewport module structure (long-term)
+- `apps/manager/src/modules/viewport3d/` contains the viewport module split into renderer/instance/shaders/types.
+- `apps/manager/src/modules/viewport3dModule.ts` is a deprecated re-export for compatibility.

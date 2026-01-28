@@ -1,4 +1,3 @@
-
 import type { Module } from "../core/module";
 import { asModuleId } from "../core/id";
 import type { CoreEvent, RpcCall, RpcResponse } from "../core/rpc";
@@ -14,7 +13,40 @@ export const EngineModule: Module = {
   init(ctx) {
     const world = new World();
 
-    // Run update loop
+    // Seed world (moved from EngineProvider)
+    const player = world.createEntity();
+    world.addComponent(player, {
+      type: "transform",
+      position: { x: 0, y: 0, z: 0 },
+      rotation: { x: 0, y: 0, z: 0, w: 1 },
+      scale: { x: 1, y: 1, z: 1 },
+    } as any);
+    world.addComponent(player, {
+      type: "mesh",
+      primitive: "cube",
+      color: "#3498db",
+    } as any);
+
+    const light = world.createEntity();
+    world.addComponent(light, {
+      type: "transform",
+      position: { x: 5, y: 10, z: 5 },
+      rotation: { x: 0, y: 0, z: 0, w: 1 },
+      scale: { x: 1, y: 1, z: 1 },
+    } as any);
+
+    // Simple motion system
+    world.addSystem((w, _dt) => {
+      const entities = w.getEntitiesWith(["transform"]);
+      for (const ent of entities) {
+        const transform = w.getComponent<any>(ent, "transform");
+        if (transform && ent === player) {
+          transform.position.x += Math.sin(Date.now() / 1000) * 0.01;
+        }
+      }
+    });
+
+    // Run update loop without touching React
     let running = true;
     let last = performance.now();
     const loop = (t: number) => {

@@ -26,7 +26,7 @@ export const ViewportPanel: React.FC<{
 
     (async () => {
       try {
-        await api.call<any>(VIEWPORT_ID as any, "viewport.attachCanvas", {
+        await api.call(VIEWPORT_ID as any, "viewport.attachCanvas", {
           viewportId: "scene",
           canvasHandle,
         });
@@ -40,7 +40,7 @@ export const ViewportPanel: React.FC<{
     const t = window.setInterval(async () => {
       if (!alive) return;
       try {
-        const s = await api.call<any>(VIEWPORT_ID as any, "viewport.getStats", { viewportId: "scene" });
+        const s = (await api.call(VIEWPORT_ID as any, "viewport.getStats", { viewportId: "scene" })) as any;
         setStats(s ?? null);
       } catch {
         // ignore
@@ -52,13 +52,13 @@ export const ViewportPanel: React.FC<{
       window.clearInterval(t);
       unregisterCanvas(canvasHandle);
       // best-effort detach
-      void api.call<any>(VIEWPORT_ID as any, "viewport.detachCanvas", { viewportId: "scene" });
+      void api.call(VIEWPORT_ID as any, "viewport.detachCanvas", { viewportId: "scene" });
     };
   }, [api, canvasHandle]);
 
   // Inform module about selection (optional highlight later)
   useEffect(() => {
-    void api.call<any>(VIEWPORT_ID as any, "viewport.setSelection", { viewportId: "scene", selectedId }).catch(() => {});
+    void api.call(VIEWPORT_ID as any, "viewport.setSelection", { viewportId: "scene", selectedId }).catch(() => {});
   }, [api, selectedId]);
 
   return (
@@ -76,7 +76,7 @@ export const ViewportPanel: React.FC<{
           const canvas = canvasRef.current;
           if (!canvas) return;
           const r = canvas.getBoundingClientRect();
-          void api.call<any>(VIEWPORT_ID as any, "viewport.input", {
+          void api.call(VIEWPORT_ID as any, "viewport.input", {
             viewportId: "scene",
             type: "pointerDown",
             x: e.clientX - r.left,
@@ -92,7 +92,7 @@ export const ViewportPanel: React.FC<{
           const canvas = canvasRef.current;
           if (!canvas) return;
           const r = canvas.getBoundingClientRect();
-          void api.call<any>(VIEWPORT_ID as any, "viewport.input", {
+          void api.call(VIEWPORT_ID as any, "viewport.input", {
             viewportId: "scene",
             type: "pointerMove",
             x: e.clientX - r.left,
@@ -108,7 +108,7 @@ export const ViewportPanel: React.FC<{
           const canvas = canvasRef.current;
           if (!canvas) return;
           const r = canvas.getBoundingClientRect();
-          void api.call<any>(VIEWPORT_ID as any, "viewport.input", {
+          void api.call(VIEWPORT_ID as any, "viewport.input", {
             viewportId: "scene",
             type: "pointerUp",
             x: e.clientX - r.left,
@@ -117,7 +117,7 @@ export const ViewportPanel: React.FC<{
           }).catch(() => {});
         }}
         onWheel={(e) => {
-          void api.call<any>(VIEWPORT_ID as any, "viewport.input", {
+          void api.call(VIEWPORT_ID as any, "viewport.input", {
             viewportId: "scene",
             type: "wheel",
             deltaY: e.deltaY,

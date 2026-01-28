@@ -1,4 +1,3 @@
-
 // services/math.ts - THE ULTIMATE VERSION (Complete Feature Set + Optimizations)
 
 // ==========================================
@@ -737,18 +736,15 @@ export const Mat4Utils = {
         if (!len) { y0 = 0; y1 = 0; y2 = 0; }
         else { len = 1 / len; y0 *= len; y1 *= len; y2 *= len; }
 
-        // Column-major View Matrix (Inverse Camera Orientation)
-        // [ Rx  Ry  Rz  -dot(R,e) ]
-        // [ Ux  Uy  Uz  -dot(U,e) ]
-        // [ Bx  By  Bz  -dot(B,e) ]
-        // [ 0   0   0   1         ]
-        out[0] = x0; out[1] = y0; out[2] = z0; out[3] = 0;
-        out[4] = x1; out[5] = y1; out[6] = z1; out[7] = 0;
-        out[8] = x2; out[9] = y2; out[10] = z2; out[11] = 0;
-        out[12] = -(x0 * eyex + x1 * eyey + x2 * eyez);
-        out[13] = -(y0 * eyex + y1 * eyey + y2 * eyez);
-        out[14] = -(z0 * eyex + z1 * eyey + z2 * eyez);
-        out[15] = 1;
+        // View matrix (World -> Camera). This stores the transposed rotation basis (rows)
+// in column-major memory layout (same convention as gl-matrix / WebGL).
+out[0] = x0; out[1] = y0; out[2] = z0; out[3] = 0;
+out[4] = x1; out[5] = y1; out[6] = z1; out[7] = 0;
+out[8] = x2; out[9] = y2; out[10] = z2; out[11] = 0;
+out[12] = -(x0 * eyex + x1 * eyey + x2 * eyez);
+out[13] = -(y0 * eyex + y1 * eyey + y2 * eyez);
+out[14] = -(z0 * eyex + z1 * eyey + z2 * eyez);
+out[15] = 1;
         return out;
     },
 

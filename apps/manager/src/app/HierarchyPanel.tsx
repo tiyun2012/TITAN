@@ -13,7 +13,7 @@ export const HierarchyPanel: React.FC<{
 
   async function refresh() {
     try {
-      const list = await api.call<string[]>(ENGINE_ID as any, "world.listEntities", {});
+      const list = (await api.call(ENGINE_ID as any, "world.listEntities", {})) as string[];
       setEntities(list.map(String));
     } catch (e: any) {
       api.log("error", "Hierarchy refresh failed", { error: String(e?.message ?? e) });
@@ -71,7 +71,7 @@ export const HierarchyPanel: React.FC<{
         }}
         onClick={async () => {
           try {
-            const created = await api.call<{ id: string }>(ENGINE_ID as any, "world.createCube", {});
+            const created = (await api.call(ENGINE_ID as any, "world.createCube", {})) as { id: string };
             onSelect(String(created.id));
             refresh();
           } catch (e: any) {

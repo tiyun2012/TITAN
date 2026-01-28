@@ -3,7 +3,7 @@ import { createModuleManager } from "./moduleManager";
 import { ExamplePingModule } from "./examplePing";
 import { ExampleMathModule } from "./exampleMath";
 import { EngineModule } from "./engineModule";
-import { Viewport3dModule } from "./viewport3dModule";
+import { Viewport3dModule } from "./viewport3d";
 
 export function registerModules(registry: ModuleRegistry) {
   registry.register(createModuleManager(registry));
