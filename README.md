@@ -1,11 +1,20 @@
-<div align="center">
+# TI Workspace (UI Framework + Manager)
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+This workspace contains:
+- `ui-framework`: your **UI framework package** (standalone console included)
+- `apps/manager`: the manager app that hosts the framework and talks to modules via **ModuleId**
 
-  <h1>Built with AI Studio</h2>
+## Run
+```bash
+npm install
+npm run dev
+```
 
-  <p>The fastest path from prompt to production with Gemini.</p>
+## Key idea
+- **Modules** communicate only by `ModuleId` (RPC over bus).
+- The **UI framework** is its own package.
+- UI framework has its own console (standalone), and its logs can be forwarded into the manager's main console.
 
-  <a href="https://aistudio.google.com/apps">Start building</a>
 
-</div>
+## Windows/npm note
+This repo avoids the `workspace:*` protocol (some npm setups error on it). It uses a `file:` dependency instead.

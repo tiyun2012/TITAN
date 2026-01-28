@@ -1,0 +1,19 @@
+{
+  "name": "ti-workspace",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "ui-framework"
+  ],
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --port ${PORT:-3000}",
+    "build": "npm run build -w @ti/manager",
+    "preview": "npm run preview -w @ti/manager",
+    "build:cloud": "npm run build -w @ti/manager && node tools/copy-dist.mjs",
+    "dev:manager": "npm run dev -w @ti/manager",
+    "preview:cloud": "npm run preview -w @ti/manager -- --host 0.0.0.0 --port 4173",
+    "start": "vite --host 0.0.0.0 --port ${PORT:-3000}"
+  }
+}
