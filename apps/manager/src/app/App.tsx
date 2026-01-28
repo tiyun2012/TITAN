@@ -1,7 +1,8 @@
 import React from "react";
-import type { Api } from "../core/rpc";
+import type { Api, CoreEvent } from "../core/rpc";
+import type { Bus } from "../core/bus";
 import { MainWindow } from "./MainWindow";
 
-export function App({ api }: { api: Api }) {
-  return <MainWindow api={api} />;
+export function App({ api, bus }: { api: Api; bus: Bus<CoreEvent> }) {
+  return <MainWindow api={api} bus={bus} />;
 }

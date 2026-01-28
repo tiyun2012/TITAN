@@ -97,14 +97,6 @@ export class WebGLRenderer {
   private vboGrid: WebGLBuffer;
   private gridVerts: number;
 
-  // Pre-allocated matrices for zero-GC rendering
-  private matProj = Mat4Utils.create();
-  private matView = Mat4Utils.create();
-  private matViewProj = Mat4Utils.create();
-  private matModel = Mat4Utils.create();
-  private matModelT = Mat4Utils.create();
-  private matModelS = Mat4Utils.create();
-
   constructor(gl: WebGL2RenderingContext) {
     this.gl = gl;
 
@@ -162,9 +154,10 @@ export class WebGLRenderer {
     yaw: number;
     pitch: number;
     distance: number;
+    target: { x: number; y: number; z: number };
     statsOut: ViewportStats;
   }) {
-    const { canvas, renderables, yaw, pitch, distance, statsOut } = params;
+    const { canvas, renderables, yaw, pitch, distance, target, statsOut } = params;
     const gl = this.gl;
 
     const w = Math.max(1, Math.floor(canvas.clientWidth));
@@ -181,33 +174,36 @@ export class WebGLRenderer {
 
     gl.useProgram(this.program);
 
-    // Projection
-    Mat4Utils.perspective((60 * Math.PI) / 180, canvas.width / canvas.height, 0.1, 2000, this.matProj);
+    const proj: Mat4 = Mat4Utils.create();
+    Mat4Utils.perspective((60 * Math.PI) / 180, canvas.width / canvas.height, 0.1, 2000, proj);
 
-    // Orbit camera calculation
+    // Orbit camera around target (Maya-style pivot)
     const cx = Math.cos(yaw);
     const sx = Math.sin(yaw);
     const cp = Math.cos(pitch);
     const sp = Math.sin(pitch);
 
-    // FIX: Use object literals for Vec3 to match math.ts types
-    const eye: Vec3 = { x: cx * cp * distance, y: sp * distance, z: sx * cp * distance };
-    const center: Vec3 = { x: 0, y: 0, z: 0 };
-    const up: Vec3 = { x: 0, y: 1, z: 0 };
+    const eye: Vec3 = { x: target.x + cx * cp * distance, y: target.y + sp * distance, z: target.z + sx * cp * distance } as any;
+    const center: Vec3 = { x: target.x, y: target.y, z: target.z } as any;
+    const up: Vec3 = { x: 0, y: 1, z: 0 } as any;
+    const view: Mat4 = Mat4Utils.create();
+    Mat4Utils.lookAt(eye, center, up, view);
 
-    Mat4Utils.lookAt(eye, center, up, this.matView);
+    const viewProj: Mat4 = Mat4Utils.create();
     
-    // ViewProj = Proj * View
-    Mat4Utils.multiply(this.matProj, this.matView, this.matViewProj);
+    // Correct order for clip-space: viewProj = proj * view
+    // Since multiply(a,b) = a*b, we do multiply(proj, view, viewProj).
+    Mat4Utils.multiply(proj, view, viewProj);
 
-    gl.uniformMatrix4fv(this.u.u_viewProj, false, this.matViewProj);
+    gl.uniformMatrix4fv(this.u.u_viewProj, false, viewProj);
 
     let drawCalls = 0;
 
     // Draw grid
     gl.bindVertexArray(this.vaoGrid);
-    Mat4Utils.identity(this.matModel);
-    gl.uniformMatrix4fv(this.u.u_model, false, this.matModel);
+    const gridModel: Mat4 = Mat4Utils.create();
+    Mat4Utils.identity(gridModel);
+    gl.uniformMatrix4fv(this.u.u_model, false, gridModel);
     gl.uniform4f(this.u.u_color, 0.25, 0.25, 0.25, 1);
     gl.drawArrays(gl.LINES, 0, this.gridVerts);
     drawCalls++;
@@ -219,14 +215,15 @@ export class WebGLRenderer {
       const pos = r.transform?.position ?? { x: 0, y: 0, z: 0 };
       const sc = r.transform?.scale ?? { x: 1, y: 1, z: 1 };
 
-      // Optimized matrix composition (reuse allocated matrices)
-      Mat4Utils.fromTranslation(pos, this.matModelT);
-      Mat4Utils.fromScaling(sc, this.matModelS);
+      const modelT: Mat4 = Mat4Utils.create();
+      const modelS: Mat4 = Mat4Utils.create();
+      Mat4Utils.fromTranslation([pos.x, pos.y, pos.z] as any, modelT);
+      Mat4Utils.fromScaling([sc.x, sc.y, sc.z] as any, modelS);
       
-      // Model = T * S
-      Mat4Utils.multiply(this.matModelT, this.matModelS, this.matModel);
+      // model = T * S
+      Mat4Utils.multiply(modelT, modelS, modelT);
 
-      gl.uniformMatrix4fv(this.u.u_model, false, this.matModel);
+      gl.uniformMatrix4fv(this.u.u_model, false, modelT);
 
       const col = parseHexColor(r.mesh?.color ?? "#999999");
       gl.uniform4f(this.u.u_color, col[0], col[1], col[2], col[3]);

@@ -8,7 +8,7 @@
     "ui-framework"
   ],
   "scripts": {
-    "dev": "vite --host 0.0.0.0 --port ${PORT:-3000}",
+    "dev": "vite --host 0.0.0.0 --port 3000",
     "build": "npm run build -w @ti/manager",
     "preview": "npm run preview -w @ti/manager",
     "build:cloud": "npm run build -w @ti/manager && node tools/copy-dist.mjs",

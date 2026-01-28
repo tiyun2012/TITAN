@@ -16,6 +16,8 @@ export type ViewportStats = {
   drawCalls: number;
 };
 
+export type NavMode = "maya" | "game";
+
 export type ViewportInputEvent =
   | { type: "pointerDown"; x: number; y: number; button?: number; shift?: boolean; alt?: boolean; ctrl?: boolean; meta?: boolean }
   | { type: "pointerMove"; x: number; y: number; buttons?: number; shift?: boolean; alt?: boolean; ctrl?: boolean; meta?: boolean }

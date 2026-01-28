@@ -70,6 +70,23 @@ export const Viewport3dModule: Module = {
           return reply(true, { ok: true });
         }
 
+if (msg.op === "viewport.setNavMode") {
+  const viewportId = String(p.viewportId ?? "scene");
+  const v = instances.get(viewportId);
+  if (!v) return reply(true, { ok: false });
+  const mode = String(p.mode ?? "maya");
+  if (mode !== "maya" && mode !== "game") return reply(false, null, "mode must be 'maya' or 'game'");
+  v.setNavMode(mode as any);
+  return reply(true, { ok: true, mode });
+}
+
+if (msg.op === "viewport.getNavMode") {
+  const viewportId = String(p.viewportId ?? "scene");
+  const v = instances.get(viewportId);
+  if (!v) return reply(true, null);
+  return reply(true, { mode: (v as any).navMode ?? "maya" });
+}
+
         if (msg.op === "viewport.setSelection") {
           const viewportId = String(p.viewportId ?? "scene");
           const v = instances.get(viewportId);

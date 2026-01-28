@@ -560,6 +560,7 @@ export const Mat4Utils = {
     identity: (out: Mat4): Mat4 => { out.fill(0); out[0]=1; out[5]=1; out[10]=1; out[15]=1; return out; },
     copy: (out: Mat4, a: Mat4): Mat4 => { out.set(a); return out; },
     
+    // Standard Matrix Multiply: out = a * b
     multiply: (a: Mat4, b: Mat4, out: Mat4): Mat4 => {
         const a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3];
         const a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7];
@@ -737,14 +738,14 @@ export const Mat4Utils = {
         else { len = 1 / len; y0 *= len; y1 *= len; y2 *= len; }
 
         // View matrix (World -> Camera). This stores the transposed rotation basis (rows)
-// in column-major memory layout (same convention as gl-matrix / WebGL).
-out[0] = x0; out[1] = y0; out[2] = z0; out[3] = 0;
-out[4] = x1; out[5] = y1; out[6] = z1; out[7] = 0;
-out[8] = x2; out[9] = y2; out[10] = z2; out[11] = 0;
-out[12] = -(x0 * eyex + x1 * eyey + x2 * eyez);
-out[13] = -(y0 * eyex + y1 * eyey + y2 * eyez);
-out[14] = -(z0 * eyex + z1 * eyey + z2 * eyez);
-out[15] = 1;
+        // in column-major memory layout (same convention as gl-matrix / WebGL).
+        out[0] = x0; out[1] = y0; out[2] = z0; out[3] = 0;
+        out[4] = x1; out[5] = y1; out[6] = z1; out[7] = 0;
+        out[8] = x2; out[9] = y2; out[10] = z2; out[11] = 0;
+        out[12] = -(x0 * eyex + x1 * eyey + x2 * eyez);
+        out[13] = -(y0 * eyex + y1 * eyey + y2 * eyez);
+        out[14] = -(z0 * eyex + z1 * eyey + z2 * eyez);
+        out[15] = 1;
         return out;
     },
 

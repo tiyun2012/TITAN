@@ -22,7 +22,7 @@ export const InspectorPanel: React.FC<{ api: Api; entityId: string | null }> = (
   async function load() {
     if (!entityId) return setData(null);
     try {
-      const res = (await api.call(ENGINE_ID as any, "world.getEntity", { id: entityId })) as any;
+      const res = await api.call<any>(ENGINE_ID as any, "world.getEntity", { id: entityId });
       setData(res ?? null);
     } catch (e: any) {
       api.log("error", "Inspector load failed", { error: String(e?.message ?? e) });

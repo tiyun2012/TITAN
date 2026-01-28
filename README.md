@@ -47,3 +47,11 @@ Fixed `Mat4Utils.lookAt` to be column-major (WebGL/OpenGL). Without this, the We
 ## Viewport module structure (long-term)
 - `apps/manager/src/modules/viewport3d/` contains the viewport module split into renderer/instance/shaders/types.
 - `apps/manager/src/modules/viewport3dModule.ts` is a deprecated re-export for compatibility.
+
+
+## Viewport navigation
+- Editor (Maya): Alt+LMB orbit, Alt+MMB pan, Alt+RMB dolly, Wheel zoom
+- Game: RMB look (placeholder), Wheel zoom
+
+## Math safety
+Viewport uses `Mat4Utils.multiplyStd()` to avoid legacy multiply order confusion.

@@ -30,6 +30,6 @@ if (!__el) {
 
 ReactDOM.createRoot(__el).render(
   <React.StrictMode>
-    <App api={api} />
+    <App api={api} bus={bus} />
   </React.StrictMode>
 );

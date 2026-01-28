@@ -12,6 +12,7 @@ export const ViewportPanel: React.FC<{
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [lastError, setLastError] = useState<string | null>(null);
   const [stats, setStats] = useState<any>(null);
+  const [navMode, setNavMode] = useState<"maya" | "game">("maya");
 
   const canvasHandle = useMemo(() => "canvas:viewport:scene", []);
 
@@ -26,10 +27,13 @@ export const ViewportPanel: React.FC<{
 
     (async () => {
       try {
-        await api.call(VIEWPORT_ID as any, "viewport.attachCanvas", {
+        await api.call<any>(VIEWPORT_ID as any, "viewport.attachCanvas", {
           viewportId: "scene",
           canvasHandle,
         });
+        // Default navigation: Maya editor style
+        await api.call<any>(VIEWPORT_ID as any, "viewport.setNavMode", { viewportId: "scene", mode: "maya" });
+        setNavMode("maya");
         setLastError(null);
       } catch (e: any) {
         setLastError(String(e?.message ?? e));
@@ -40,7 +44,7 @@ export const ViewportPanel: React.FC<{
     const t = window.setInterval(async () => {
       if (!alive) return;
       try {
-        const s = (await api.call(VIEWPORT_ID as any, "viewport.getStats", { viewportId: "scene" })) as any;
+        const s = await api.call<any>(VIEWPORT_ID as any, "viewport.getStats", { viewportId: "scene" });
         setStats(s ?? null);
       } catch {
         // ignore
@@ -52,13 +56,13 @@ export const ViewportPanel: React.FC<{
       window.clearInterval(t);
       unregisterCanvas(canvasHandle);
       // best-effort detach
-      void api.call(VIEWPORT_ID as any, "viewport.detachCanvas", { viewportId: "scene" });
+      void api.call<any>(VIEWPORT_ID as any, "viewport.detachCanvas", { viewportId: "scene" });
     };
   }, [api, canvasHandle]);
 
   // Inform module about selection (optional highlight later)
   useEffect(() => {
-    void api.call(VIEWPORT_ID as any, "viewport.setSelection", { viewportId: "scene", selectedId }).catch(() => {});
+    void api.call<any>(VIEWPORT_ID as any, "viewport.setSelection", { viewportId: "scene", selectedId }).catch(() => {});
   }, [api, selectedId]);
 
   return (
@@ -76,7 +80,7 @@ export const ViewportPanel: React.FC<{
           const canvas = canvasRef.current;
           if (!canvas) return;
           const r = canvas.getBoundingClientRect();
-          void api.call(VIEWPORT_ID as any, "viewport.input", {
+          void api.call<any>(VIEWPORT_ID as any, "viewport.input", {
             viewportId: "scene",
             type: "pointerDown",
             x: e.clientX - r.left,
@@ -92,7 +96,7 @@ export const ViewportPanel: React.FC<{
           const canvas = canvasRef.current;
           if (!canvas) return;
           const r = canvas.getBoundingClientRect();
-          void api.call(VIEWPORT_ID as any, "viewport.input", {
+          void api.call<any>(VIEWPORT_ID as any, "viewport.input", {
             viewportId: "scene",
             type: "pointerMove",
             x: e.clientX - r.left,
@@ -108,7 +112,7 @@ export const ViewportPanel: React.FC<{
           const canvas = canvasRef.current;
           if (!canvas) return;
           const r = canvas.getBoundingClientRect();
-          void api.call(VIEWPORT_ID as any, "viewport.input", {
+          void api.call<any>(VIEWPORT_ID as any, "viewport.input", {
             viewportId: "scene",
             type: "pointerUp",
             x: e.clientX - r.left,
@@ -117,7 +121,7 @@ export const ViewportPanel: React.FC<{
           }).catch(() => {});
         }}
         onWheel={(e) => {
-          void api.call(VIEWPORT_ID as any, "viewport.input", {
+          void api.call<any>(VIEWPORT_ID as any, "viewport.input", {
             viewportId: "scene",
             type: "wheel",
             deltaY: e.deltaY,
@@ -136,10 +140,57 @@ export const ViewportPanel: React.FC<{
           fontSize: 11,
           border: "1px solid rgba(255,255,255,0.10)",
           maxWidth: 480,
-          pointerEvents: "none",
+          pointerEvents: "auto",
         }}
       >
-        <div style={{ fontWeight: 800 }}>Scene Viewport (WebGL)\nDrag: orbit • Wheel: zoom</div>
+        <div style={{ fontWeight: 800 }}>Scene Viewport (WebGL)</div>
+<div style={{ opacity: 0.85, marginTop: 4 }}>
+  {navMode === "maya" ? (
+    <>Maya nav: <b>Alt+LMB</b> orbit • <b>Alt+MMB</b> pan • <b>Alt+RMB</b> dolly • Wheel zoom</>
+  ) : (
+    <>Game nav: <b>RMB</b> look (WASD coming) • Wheel zoom</>
+  )}
+</div>
+<div style={{ display: "flex", gap: 6, marginTop: 8 }}>
+  <button
+    onClick={async () => {
+      try {
+        await api.call<any>(VIEWPORT_ID as any, "viewport.setNavMode", { viewportId: "scene", mode: "maya" });
+        setNavMode("maya");
+      } catch {}
+    }}
+    style={{
+      padding: "4px 8px",
+      borderRadius: 8,
+      border: "1px solid rgba(255,255,255,0.14)",
+      background: navMode === "maya" ? "rgba(255,255,255,0.10)" : "transparent",
+      color: "#eaeaea",
+      cursor: "pointer",
+      fontSize: 11,
+    }}
+  >
+    Editor (Maya)
+  </button>
+  <button
+    onClick={async () => {
+      try {
+        await api.call<any>(VIEWPORT_ID as any, "viewport.setNavMode", { viewportId: "scene", mode: "game" });
+        setNavMode("game");
+      } catch {}
+    }}
+    style={{
+      padding: "4px 8px",
+      borderRadius: 8,
+      border: "1px solid rgba(255,255,255,0.14)",
+      background: navMode === "game" ? "rgba(255,255,255,0.10)" : "transparent",
+      color: "#eaeaea",
+      cursor: "pointer",
+      fontSize: 11,
+    }}
+  >
+    Game
+  </button>
+</div>
         <div style={{ opacity: 0.85, marginTop: 4 }}>
           {stats?.fps ? `fps: ${stats.fps.toFixed(1)}` : "fps: —"} • draws: {stats?.drawCalls ?? "—"}
         </div>
